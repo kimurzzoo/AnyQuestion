@@ -7,6 +7,7 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.data.repository.findByIdOrNull
+import com.example.anyquestion.secret.Secret
 
 @Service
 class UserService(private val userRepository : UserRepository,
