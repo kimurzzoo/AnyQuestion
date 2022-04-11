@@ -41,8 +41,7 @@ class QuestionerService(private val userRepository : UserRepository,
             val roomnumber : Int = room.roomnumber
             var questioner = Questioner(roomid, userid!!, roomnumber)
             roomRepository.save(Room(roomid, room.roompassword, roomnumber + 1))
-            emitter = emitterService.subscribe(userid, false)
-            emitterService.sendToClient(emitter, userid, false, roomnumber)
+            emitter = emitterService.subscribe(userid, false, roomnumber)
             if(questionerRepository.nowCount(roomid) == 0)
             {
                 questionerRepository.save(questioner)

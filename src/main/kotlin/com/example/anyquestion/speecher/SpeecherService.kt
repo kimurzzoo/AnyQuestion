@@ -27,8 +27,7 @@ class SpeecherService(private val speecherRepository : SpeecherRepository, priva
         val roompassword = randomString[num] + savedspeecher.roomid.toString()
         val room = Room(savedspeecher.roomid, roompassword, 1)
         roomRepository.save(room)
-        var emitter = emitterService.subscribe(userId, true)
-        emitterService.sendToClient(emitter, userId, true, roompassword)
+        var emitter = emitterService.subscribe(userId, true, roompassword)
         return emitter
     }
 
@@ -55,6 +54,21 @@ class SpeecherService(private val speecherRepository : SpeecherRepository, priva
         return SpeecherDTO(roomRepository.findById(speecher.roomid!!).get().roompassword)
     }
 
-    //@Transactional
-    //fun next() : 
+    /*@Transactional
+    fun next() 
+    {
+        var userEmail = SecurityUtil.getCurrentUserEmail()
+        var userId = userRepository.findByEmail(userEmail).id
+        val speecher = speecherRepository.findByUserid(userId!!)
+        var nextUser = questionerRepository.nextQuestion(speecher.roomid)
+
+        if(nextUser == null)
+        {
+
+        }
+        else
+        {
+
+        }
+    }*/
 }

@@ -10,14 +10,14 @@ class EmitterService(private val emitterRepository : EmitterRepository)
 {
     private val DEFAULT_TIMEOUT = 60L * 1000 * 60
 
-    fun subscribe(userid : Long, role : Boolean) : SseEmitter
+    fun subscribe(userid : Long, role : Boolean, datum : Any) : SseEmitter
     {
         val emitter = emitterRepository.save(userid, SseEmitter(DEFAULT_TIMEOUT), role)
 
         emitter.onCompletion{emitterRepository.deleteById(userid, role)}
         emitter.onTimeout{emitterRepository.deleteById(userid, role)}
 
-        sendToClient(emitter, userid, role, "eventstream created.")
+        sendToClient(emitter, userid, role, datum)
         return emitter
     }
 
