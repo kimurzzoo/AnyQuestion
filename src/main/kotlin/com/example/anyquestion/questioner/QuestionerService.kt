@@ -6,9 +6,14 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import java.util.*
+import com.example.anyquestion.sse.EmitterService
 
 @Service
-class QuestionerService(private val userRepository : UserRepository, private val roomRepository : RoomRepository, private val questionerRepository : QuestionerRepository, private val questionEventService : QuestionEventService)
+class QuestionerService(private val userRepository : UserRepository,
+                        private val roomRepository : RoomRepository,
+                        private val questionerRepository : QuestionerRepository,
+                        private val questionEventService : QuestionEventService,
+                        private val emitterService : EmitterService)
 {
     @Transactional
     fun groupSearch(groupSearchDTO : GroupSearchDTO) : GroupSearchResultDTO
@@ -24,21 +29,31 @@ class QuestionerService(private val userRepository : UserRepository, private val
     }
 
     @Transactional
-    fun me(meDTO : MeDTO) : MeResultDTO
+    fun me(meDTO : MeDTO) : SseEmitter?
     {
-        var meResultDTO = MeResultDTO(-1)
+        var emitter : SseEmitter? = null
         if(roomRepository.existsByRoompassword(meDTO.roompassword))
         {
             var email = SecurityUtil.getCurrentUserEmail()
             var userid = userRepository.findByEmail(email).id
-            var room = roomRepository.findByRoompassword(meDTO.roompassword)
-            questionEventService.publishCustomEvent(room.roomid!!, userid!!)
-            var questioner = Questioner(room.roomid!!, userid!!, room.roomnumber)
-            roomRepository.save(Room(room.roomid, room.roompassword, room.roomnumber + 1))
-            meResultDTO.number = room.roomnumber
-            questionerRepository.save(questioner)
+            val room = roomRepository.findByRoompassword(meDTO.roompassword)
+            val roomid : Int = room.roomid!!
+            val roomnumber : Int = room.roomnumber
+            var questioner = Questioner(roomid, userid!!, roomnumber)
+            roomRepository.save(Room(roomid, room.roompassword, roomnumber + 1))
+            emitter = emitterService.subscribe(userid, false)
+            emitterService.sendToClient(emitter, userid, false, roomnumber)
+            if(questionerRepository.nowCount(roomid) == 0)
+            {
+                questionerRepository.save(questioner)
+                questionEventService.publishCustomEvent(roomid, userid, false)
+            }
+            else
+            {
+                questionerRepository.save(questioner)
+            }
         }
 
-        return meResultDTO
+        return emitter
     }
 }

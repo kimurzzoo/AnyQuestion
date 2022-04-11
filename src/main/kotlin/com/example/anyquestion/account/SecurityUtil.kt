@@ -3,7 +3,7 @@ package com.example.anyquestion.account
 import org.springframework.security.core.*
 import org.springframework.security.core.context.SecurityContextHolder
 
-class SecurityUtil()
+class SecurityUtil
 {
     companion object
     {

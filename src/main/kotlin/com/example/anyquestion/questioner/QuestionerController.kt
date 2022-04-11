@@ -2,6 +2,7 @@ package com.example.anyquestion.questioner
 
 import org.springframework.web.bind.annotation.*
 import org.springframework.http.ResponseEntity
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 
 @RestController
 @RequestMapping("/questioner")
@@ -13,15 +14,9 @@ class QuestionerController(private val questionerService : QuestionerService)
         return ResponseEntity.ok().body(questionerService.groupSearch(groupSearchDTO))
     }
 
-    @PostMapping("/me")
-    fun me(@RequestBody meDTO : MeDTO) : ResponseEntity<*>
+    @PostMapping(value = ["/me"], produces = ["text/event-stream"], consumes=["application/json"])
+    fun me(@RequestBody meDTO : MeDTO) : SseEmitter?
     {
-        return ResponseEntity.ok().body(questionerService.me(meDTO))
+        return questionerService.me(meDTO)
     }
-
-    /*@GetMapping(value = "/subscribe", produces = "text/event-stream")
-    fun subscribe(@RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") lastEventId : String) : SseEmitter
-    {
-        return questionerService.subscribe()
-    }*/
 }
