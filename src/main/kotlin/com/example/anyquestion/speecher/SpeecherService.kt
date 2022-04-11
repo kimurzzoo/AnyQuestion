@@ -39,6 +39,7 @@ class SpeecherService(private val speecherRepository : SpeecherRepository, priva
         var userId = userRepository.findByEmail(userEmail).id
         if(speecherRepository.deleteByUserid(userId!!) > 0)
         {
+            emitterService.unsubscribe(userId, true)
             return GroupDeleteResult(true)
         }
         else

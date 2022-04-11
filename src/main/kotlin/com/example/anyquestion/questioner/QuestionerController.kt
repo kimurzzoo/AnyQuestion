@@ -19,4 +19,10 @@ class QuestionerController(private val questionerService : QuestionerService)
     {
         return questionerService.me(meDTO)
     }
+
+    @GetMapping("/meout")
+    fun meOut() : ResponseEntity<*>
+    {
+        return ResponseEntity.ok().body(questionerService.meOut())
+    }
 }

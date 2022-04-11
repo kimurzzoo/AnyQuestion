@@ -56,4 +56,18 @@ class QuestionerService(private val userRepository : UserRepository,
 
         return emitter
     }
+
+    @Transactional
+    fun meOut() : MeOutResultDTO
+    {
+        var meOutResultDTO = MeOutResultDTO(false)
+
+        var email = SecurityUtil.getCurrentUserEmail()
+        var userid = userRepository.findByEmail(email).id
+
+        questionerRepository.deleteByUserid(userid!!)
+        emitterService.unsubscribe(userid!!, false)
+        meOutResultDTO.ok = true
+        return meOutResultDTO
+    }
 }

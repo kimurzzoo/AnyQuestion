@@ -33,4 +33,9 @@ class EmitterService(private val emitterRepository : EmitterRepository)
             throw RuntimeException("연결 오류")
         }
     }
+
+    fun unsubscribe(userid : Long, role : Boolean)
+    {
+        emitterRepository.deleteById(userid, role)
+    }
 }

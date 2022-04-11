@@ -15,3 +15,7 @@ data class MeDTO(
 data class MeResultDTO(
     var number : Int
 )
+
+data class MeOutResultDTO(
+    var ok : Boolean
+)

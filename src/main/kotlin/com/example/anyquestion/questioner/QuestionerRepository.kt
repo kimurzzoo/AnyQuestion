@@ -10,4 +10,6 @@ interface QuestionerRepository : JpaRepository<Questioner, Int>
 {
     @Query("select count(*) from Questioner q where q.roomid = :roomid")
     fun nowCount(@Param("roomid") roomid : Int) : Int
+
+    fun deleteByUserid(userid : Long)
 }
