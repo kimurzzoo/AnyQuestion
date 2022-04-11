@@ -29,11 +29,23 @@ class EmitterRepository
     {
         if(role)
         {
-            speecherMap.remove(userid)
+            speecherMap.remove(userid)!!.complete()
         }
         else
         {
-            questionerMap.remove(userid)
+            questionerMap.remove(userid)!!.complete()
+        }
+    }
+
+    fun findByIdWithRole(userid : Long, role : Boolean) : SseEmitter?
+    {
+        if(role)
+        {
+            return speecherMap.get(userid)
+        }
+        else
+        {
+            return questionerMap.get(userid)
         }
     }
 }

@@ -16,4 +16,6 @@ interface QuestionerRepository : JpaRepository<Questioner, Int>
 
     @Query("select r.userid from Questioner r where r.roomid = :roomid and r.number = (select min(q.number) from Questioner q where q.roomid = :roomid)")
     fun nextQuestion(@Param("roomid") roomid : Int) : Long?
+
+    fun findByRoomidAndUserid(roomid : Int, userid : Long) : Questioner
 }
