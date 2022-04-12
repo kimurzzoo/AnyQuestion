@@ -26,13 +26,11 @@ class QuestionEvent : ApplicationEvent
 {
     var roomid : Int
     var userId : Long
-    var role : Boolean
 
-    constructor(obj : Any, roomid : Int, userId : Long, role : Boolean) : super(obj)
+    constructor(obj : Any, roomid : Int, userId : Long) : super(obj)
     {
         this.roomid = roomid
         this.userId = userId
-        this.role = role
     }
     
 }

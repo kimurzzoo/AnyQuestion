@@ -6,9 +6,9 @@ import org.springframework.context.ApplicationEventPublisher
 @Component
 class QuestionEventService(private val applicationEventPublisher : ApplicationEventPublisher)
 {
-    fun publishCustomEvent(roomid : Int, userId : Long, role : Boolean)
+    fun publishCustomEvent(roomid : Int, userId : Long)
     {
-        var questionEvent = QuestionEvent(this as Any, roomid, userId, role)
+        var questionEvent = QuestionEvent(this as Any, roomid, userId)
         applicationEventPublisher.publishEvent(questionEvent)
     }
 }

@@ -25,4 +25,10 @@ class SpeecherController(private val speecherService : SpeecherService)
     {
         return ResponseEntity.ok().body(speecherService.groupFind())
     }
+
+    @GetMapping("/next")
+    fun next()
+    {
+        speecherService.next()
+    }
 }

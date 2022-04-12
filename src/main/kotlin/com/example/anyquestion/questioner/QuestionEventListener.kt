@@ -17,6 +17,6 @@ class QuestionEventListener(private val emitterService : EmitterService,
     fun handler(questionEvent : QuestionEvent)
     {
         val speecher = speecherRepository.findById(questionEvent.roomid).get()
-        emitterService.sendToClient(emitterRepository.findByIdWithRole(speecher.userid, true)!!, speecher.userid, true, questionerRepository.findByRoomidAndUserid(questionEvent.roomid, questionEvent.userId).number)
+        emitterService.sendToClient(emitterRepository.findByIdWithRole(speecher.userid, true)!!, speecher.userid, true, questionerRepository.findByRoomidAndUserid(questionEvent.roomid, questionEvent.userId).number.toString())
     }
 }

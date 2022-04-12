@@ -10,7 +10,7 @@ class EmitterService(private val emitterRepository : EmitterRepository)
 {
     private val DEFAULT_TIMEOUT = 60L * 1000 * 60
 
-    fun subscribe(userid : Long, role : Boolean, datum : Any) : SseEmitter
+    fun subscribe(userid : Long, role : Boolean, datum : String) : SseEmitter
     {
         val emitter = emitterRepository.save(userid, SseEmitter(DEFAULT_TIMEOUT), role)
 
@@ -21,7 +21,7 @@ class EmitterService(private val emitterRepository : EmitterRepository)
         return emitter
     }
 
-    fun sendToClient(emitter : SseEmitter, userid : Long, role : Boolean, datum : Any)
+    fun sendToClient(emitter : SseEmitter, userid : Long, role : Boolean, datum : String)
     {
         try
         {

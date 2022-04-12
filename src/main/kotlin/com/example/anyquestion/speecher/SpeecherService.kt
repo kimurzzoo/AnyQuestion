@@ -5,10 +5,16 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 import java.util.*
-import com.example.anyquestion.sse.EmitterService
+import com.example.anyquestion.sse.*
+import com.example.anyquestion.questioner.*
 
 @Service
-class SpeecherService(private val speecherRepository : SpeecherRepository, private val userRepository : UserRepository, private val roomRepository : RoomRepository, private val emitterService : EmitterService)
+class SpeecherService(private val speecherRepository : SpeecherRepository,
+                    private val questionerRepository : QuestionerRepository,
+                    private val userRepository : UserRepository,
+                    private val roomRepository : RoomRepository,
+                    private val emitterService : EmitterService,
+                    private val emitterRepository : EmitterRepository)
 {
     private val randomString : Array<String> = arrayOf("charlie", "william", "michael", "jonathan", "elizabeth", "beatrice", "catherine", "jennifer")
     private val randomInt : Int = randomString.size
@@ -54,21 +60,27 @@ class SpeecherService(private val speecherRepository : SpeecherRepository, priva
         return SpeecherDTO(roomRepository.findById(speecher.roomid!!).get().roompassword)
     }
 
-    /*@Transactional
+    @Transactional
     fun next() 
     {
         var userEmail = SecurityUtil.getCurrentUserEmail()
         var userId = userRepository.findByEmail(userEmail).id
         val speecher = speecherRepository.findByUserid(userId!!)
-        var nextUser = questionerRepository.nextQuestion(speecher.roomid)
+        val currentUser = questionerRepository.nextQuestion(speecher.roomid!!).get(0).userid
 
-        if(nextUser == null)
+        emitterService.sendToClient(emitterRepository.findByIdWithRole(currentUser, false)!!, currentUser, false, "your question is ended")
+        questionerRepository.deleteByUserid(currentUser)
+
+        val nextUser = questionerRepository.nextQuestion(speecher.roomid!!)
+
+        if(nextUser.size == 0)
         {
-
+            emitterService.sendToClient(emitterRepository.findByIdWithRole(userId, true)!!, userId, true, "no next questioner")
         }
         else
         {
-
+            emitterService.sendToClient(emitterRepository.findByIdWithRole(nextUser.get(0).userid, false)!!, nextUser.get(0).userid, false, nextUser.get(0).number.toString())
+            emitterService.sendToClient(emitterRepository.findByIdWithRole(userId, true)!!, userId, true, userRepository.findById(nextUser.get(0).userid).get().name + ":" + nextUser.get(0).number.toString())
         }
-    }*/
+    }
 }
