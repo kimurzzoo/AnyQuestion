@@ -27,9 +27,9 @@ class UserController(private val userService : UserService)
     }
 
     @GetMapping("/logout")
-    fun logout() : ResponseEntity<*>
+    fun logout(@RequestHeader(value = "Authorization") token : String) : ResponseEntity<*>
     {
-        return ResponseEntity.ok().body(userService.logout())
+        return ResponseEntity.ok().body(userService.logout(token))
     }
 
     @GetMapping("/withdrawal")

@@ -111,12 +111,12 @@ class UserService(private val userRepository : UserRepository,
     }
 
     @Transactional
-    fun logout() : LogoutDTO
+    fun logout(token : String) : LogoutDTO
     {
         var userEmail = SecurityUtil.getCurrentUserEmail()
         var userId = userRepository.findByEmail(userEmail).id
 
-        blacklistRepository.save(ExpiredToken(SecurityUtil.nowAccessToken!!, userId!!))
+        blacklistRepository.save(ExpiredToken(token, userId!!))
         refreshTokenRepository.deleteById(userId!!)
 
         return LogoutDTO(true)
