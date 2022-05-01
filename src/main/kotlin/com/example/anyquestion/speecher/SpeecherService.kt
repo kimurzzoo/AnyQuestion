@@ -33,7 +33,7 @@ class SpeecherService(private val speecherRepository : SpeecherRepository,
         val roompassword = randomString[num] + savedspeecher.roomid.toString()
         val room = Room(savedspeecher.roomid, roompassword, 1)
         roomRepository.save(room)
-        var emitter = emitterService.subscribe(userId, true, roompassword)
+        var emitter = emitterService.subscribe(userId, true, "password:" + roompassword)
         return emitter
     }
 
@@ -42,11 +42,30 @@ class SpeecherService(private val speecherRepository : SpeecherRepository,
     {
         var userEmail = SecurityUtil.getCurrentUserEmail()
         var userId = userRepository.findByEmail(userEmail).id
-        if(speecherRepository.deleteByUserid(userId!!) > 0)
+        var nowspeecher : Speecher? = null
+        if(userId != null)
         {
-            emitterService.unsubscribe(userId, true)
+            nowspeecher = speecherRepository.findByUserid(userId!!)
+        }
+        
+        if(nowspeecher != null)
+        {
+            val restList = questionerRepository.allQuestioners(nowspeecher.roomid!!)
+            if(restList.size > 0)
+            {
+                restList.forEach{
+                    emitterService.unsubscribe(it, false)
+                }
+            }
+
+            if(speecherRepository.deleteByUserid(userId!!) > 0)
+            {
+                emitterService.unsubscribe(userId, true)
+            }
+
             return GroupDeleteResult(true)
         }
+        
         else
             return GroupDeleteResult(false)
     }
@@ -66,21 +85,29 @@ class SpeecherService(private val speecherRepository : SpeecherRepository,
         var userEmail = SecurityUtil.getCurrentUserEmail()
         var userId = userRepository.findByEmail(userEmail).id
         val speecher = speecherRepository.findByUserid(userId!!)
-        val currentUser = questionerRepository.nextQuestion(speecher.roomid!!).get(0).userid
-
-        emitterService.sendToClient(emitterRepository.findByIdWithRole(currentUser, false)!!, currentUser, false, "your question is ended")
-        questionerRepository.deleteByUserid(currentUser)
-
-        val nextUser = questionerRepository.nextQuestion(speecher.roomid!!)
-
-        if(nextUser.size == 0)
+        val currentUserList = questionerRepository.nextQuestion(speecher.roomid!!)
+        if(currentUserList.size == 0)
         {
-            emitterService.sendToClient(emitterRepository.findByIdWithRole(userId, true)!!, userId, true, "no next questioner")
+            emitterService.sendToClient(emitterRepository.findByIdWithRole(userId, true)!!, userId, true, "no")
         }
         else
         {
-            emitterService.sendToClient(emitterRepository.findByIdWithRole(nextUser.get(0).userid, false)!!, nextUser.get(0).userid, false, nextUser.get(0).number.toString())
-            emitterService.sendToClient(emitterRepository.findByIdWithRole(userId, true)!!, userId, true, userRepository.findById(nextUser.get(0).userid).get().name + ":" + nextUser.get(0).number.toString())
+            val currentUser = currentUserList.get(0).userid
+
+            emitterService.sendToClient(emitterRepository.findByIdWithRole(currentUser, false)!!, currentUser, false, "your question is ended")
+            questionerRepository.deleteByUserid(currentUser)
+
+            val nextUser = questionerRepository.nextQuestion(speecher.roomid!!)
+
+            if(nextUser.size == 0)
+            {
+                emitterService.sendToClient(emitterRepository.findByIdWithRole(userId, true)!!, userId, true, "no")
+            }
+            else
+            {
+                emitterService.sendToClient(emitterRepository.findByIdWithRole(nextUser.get(0).userid, false)!!, nextUser.get(0).userid, false, nextUser.get(0).number.toString())
+                emitterService.sendToClient(emitterRepository.findByIdWithRole(userId, true)!!, userId, true, "next:" + userRepository.findById(nextUser.get(0).userid).get().name + ":" + nextUser.get(0).number.toString())
+            }
         }
     }
 }

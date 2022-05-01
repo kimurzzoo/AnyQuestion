@@ -18,4 +18,7 @@ interface QuestionerRepository : JpaRepository<Questioner, Int>
     fun nextQuestion(@Param("roomid") roomid : Int) : List<Questioner>
 
     fun findByRoomidAndUserid(roomid : Int, userid : Long) : Questioner
+
+    @Query("select q.userid from Questioner q where q.roomid = :roomid")
+    fun allQuestioners(@Param("roomid") roomid : Int) : List<Long>
 }
