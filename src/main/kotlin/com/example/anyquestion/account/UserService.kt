@@ -32,10 +32,11 @@ class UserService(private val userRepository : UserRepository,
             throw BadCredentialsException("로그인 실패")
         }
 
-        val accessToken = jwtTokenProvider.createToken(userDTO.email)
+        var userId = userRepository.findByEmail(userDTO.email).id
+
+        val accessToken = jwtTokenProvider.createToken(userId.toString())
         val refreshToken = jwtTokenProvider.createRefreshToken()
 
-        var userId = userRepository.findByEmail(userDTO.email).id
 
         refreshTokenRepository.save(RefreshToken(userId!!, refreshToken))
 
@@ -92,8 +93,7 @@ class UserService(private val userRepository : UserRepository,
             }
         }
 
-        var userEmail = SecurityUtil.getCurrentUserEmail()
-        var userId = userRepository.findByEmail(userEmail).id
+        var userId = SecurityUtil.getCurrentUserId().toLong()
 
         val refreshToken = refreshTokenRepository.findById(userId!!)?: throw RuntimeException("logout user")
 
@@ -102,7 +102,7 @@ class UserService(private val userRepository : UserRepository,
             throw RuntimeException("token doesnt fit")
         }
 
-        val newAccessToken = jwtTokenProvider.createToken(userEmail)
+        val newAccessToken = jwtTokenProvider.createToken(userId.toString())
         val newRefreshToken = jwtTokenProvider.createRefreshToken()
 
         refreshTokenRepository.save(RefreshToken(userId, newRefreshToken))
@@ -113,8 +113,7 @@ class UserService(private val userRepository : UserRepository,
     @Transactional
     fun logout(token : String) : LogoutDTO
     {
-        var userEmail = SecurityUtil.getCurrentUserEmail()
-        var userId = userRepository.findByEmail(userEmail).id
+        var userId = SecurityUtil.getCurrentUserId().toLong()
 
         blacklistRepository.save(ExpiredToken(token, userId!!))
         refreshTokenRepository.deleteById(userId!!)
@@ -125,9 +124,9 @@ class UserService(private val userRepository : UserRepository,
     @Transactional
     fun withdrawal() : WithdrawalDTO
     {
-        var userEmail = SecurityUtil.getCurrentUserEmail()
+        var userid = SecurityUtil.getCurrentUserId().toLong()
 
-        userRepository.deleteByEmail(userEmail)
+        userRepository.deleteById(userid)
 
         return WithdrawalDTO(true)
     }
