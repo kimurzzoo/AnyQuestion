@@ -54,6 +54,7 @@ class SpeecherService(private val speecherRepository : SpeecherRepository,
             if(restList.size > 0)
             {
                 restList.forEach{
+                    emitterService.sendToClient(emitterRepository.findByIdWithRole(it, false)!!, it, false, "group deleted")
                     emitterService.unsubscribe(it, false)
                 }
             }
@@ -105,7 +106,7 @@ class SpeecherService(private val speecherRepository : SpeecherRepository,
             }
             else
             {
-                emitterService.sendToClient(emitterRepository.findByIdWithRole(nextUser.get(0).userid, false)!!, nextUser.get(0).userid, false, nextUser.get(0).number.toString())
+                emitterService.sendToClient(emitterRepository.findByIdWithRole(nextUser.get(0).userid, false)!!, nextUser.get(0).userid, false, "your turn")
                 emitterService.sendToClient(emitterRepository.findByIdWithRole(userId, true)!!, userId, true, "next:" + userRepository.findById(nextUser.get(0).userid).get().name + ":" + nextUser.get(0).number.toString())
             }
         }
