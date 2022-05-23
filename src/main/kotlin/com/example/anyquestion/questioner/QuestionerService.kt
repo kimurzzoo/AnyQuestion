@@ -15,6 +15,7 @@ class QuestionerService(private val userRepository : UserRepository,
                         private val questionEventService : QuestionEventService,
                         private val emitterService : EmitterService)
 {
+    @Transactional
     fun groupSearch(groupSearchDTO : GroupSearchDTO) : GroupSearchResultDTO
     {
         var groupSearchResultDTO = GroupSearchResultDTO(false)
@@ -43,14 +44,11 @@ class QuestionerService(private val userRepository : UserRepository,
             emitter = emitterService.subscribe(userid, false, roomnumber.toString())
             if(questionerRepository.nowCount(roomid) == 0)
             {
-                print("no questioner before here")
                 questionerRepository.save(questioner)
                 questionEventService.publishCustomEvent(roomid, userid)
-                emitterService.sendToClient(emitter, userid, false, "your turn")
             }
             else
             {
-                print("wait for next")
                 questionerRepository.save(questioner)
             }
         }

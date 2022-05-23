@@ -126,8 +126,9 @@ class UserService(private val userRepository : UserRepository,
     fun withdrawal() : WithdrawalDTO
     {
         var userEmail = SecurityUtil.getCurrentUserEmail()
+        var userId = userRepository.findByEmail(userEmail).id
 
-        userRepository.deleteByEmail(userEmail)
+        userRepository.deleteById(userId!!)
 
         return WithdrawalDTO(true)
     }
