@@ -30,7 +30,7 @@ class SecurityConfig(private val jwtTokenProvider: JwtTokenProvider,
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 토큰 기반 인증이므로 세션 사용 안함
             .and()
             .authorizeRequests() // 요청에 대한 사용권한 체크
-            .antMatchers("/auth/login", "/auth/register").permitAll() // 로그인, 회원가입은 누구나 접근 가능
+            .antMatchers("/auth/login", "/auth/register", "/auth/forgotpassword").permitAll() // 로그인, 회원가입은 누구나 접근 가능
             .anyRequest().authenticated()
             .and()
             .addFilterBefore(JwtAuthenticationFilter(jwtTokenProvider, blacklistRepository), UsernamePasswordAuthenticationFilter::class.java)

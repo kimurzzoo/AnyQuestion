@@ -32,3 +32,11 @@ data class LogoutDTO(
 data class WithdrawalDTO(
     val ok : Boolean
 )
+
+data class EmailDTO(
+    val email : String
+)
+
+data class TempPasswordDTO(
+    val tempPassword : Boolean
+)

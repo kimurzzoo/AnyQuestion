@@ -37,4 +37,10 @@ class UserController(private val userService : UserService)
     {
         return ResponseEntity.ok().body(userService.withdrawal())
     }
+
+    @PostMapping("/forgotpassword")
+    fun forgotpassword(@RequestBody emailDTO : EmailDTO) : ResponseEntity<*>
+    {
+        return ResponseEntity.ok().body(userService.tempPassword(emailDTO))
+    }
 }

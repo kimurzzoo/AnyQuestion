@@ -7,7 +7,7 @@ class SecurityUtil
 {
     companion object
     {
-        fun getCurrentUserId() : String
+        fun getCurrentUserId() : Long
         {
             val authentication : Authentication = SecurityContextHolder.getContext().getAuthentication()
 
@@ -16,7 +16,7 @@ class SecurityUtil
                 throw RuntimeException("SecurityContext에 인증정보가 없습니다")
             }
 
-            return authentication.getName()
+            return authentication.getName().toLong()
         }
     }
 }

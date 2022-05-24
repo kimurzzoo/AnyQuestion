@@ -7,7 +7,12 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.mail.javamail.*
+import org.springframework.mail.SimpleMailMessage
 import com.example.anyquestion.secret.Secret
+import java.util.Properties
+import java.security.SecureRandom
+import javax.annotation.PostConstruct
 
 @Service
 class UserService(private val userRepository : UserRepository,
@@ -18,6 +23,27 @@ class UserService(private val userRepository : UserRepository,
 {
     @Autowired
     lateinit var passwordEncoder : PasswordEncoder
+
+    private var mailSender = JavaMailSenderImpl()
+    val myEmail = "kimurzzzoo@gmail.com"
+
+    @PostConstruct
+    fun mailSenderInit()
+    {
+        mailSender.setHost("smtp.gmail.com")
+        mailSender.setPort(587)
+        mailSender.setDefaultEncoding("utf-8")
+        mailSender.setUsername(myEmail)
+        mailSender.setPassword("vrcfazgfvfxlnshs")
+
+        var javaMailProperties = Properties()
+        javaMailProperties.setProperty("mail.transport.protocol", "smtp")
+        javaMailProperties.setProperty("mail.smtp.auth", "true")
+        javaMailProperties.setProperty("mail.smtp.starttls.enable", "true")
+        javaMailProperties.setProperty("mail.debug", "debug")
+        javaMailProperties.setProperty("mail.smtp.ssl.trust", "smtp.gmail.com")
+        mailSender.setJavaMailProperties(javaMailProperties)
+    }
 
     @Transactional
     fun login(userDTO : UserDTO) : TokenDTO
@@ -93,7 +119,7 @@ class UserService(private val userRepository : UserRepository,
             }
         }
 
-        var userId = SecurityUtil.getCurrentUserId().toLong()
+        var userId = SecurityUtil.getCurrentUserId()
 
         val refreshToken = refreshTokenRepository.findById(userId!!)?: throw RuntimeException("logout user")
 
@@ -113,7 +139,7 @@ class UserService(private val userRepository : UserRepository,
     @Transactional
     fun logout(token : String) : LogoutDTO
     {
-        var userId = SecurityUtil.getCurrentUserId().toLong()
+        var userId = SecurityUtil.getCurrentUserId()
 
         blacklistRepository.save(ExpiredToken(token, userId!!))
         refreshTokenRepository.deleteById(userId!!)
@@ -124,10 +150,50 @@ class UserService(private val userRepository : UserRepository,
     @Transactional
     fun withdrawal() : WithdrawalDTO
     {
-        var userid = SecurityUtil.getCurrentUserId().toLong()
+        var userid = SecurityUtil.getCurrentUserId()
 
         userRepository.deleteById(userid)
 
         return WithdrawalDTO(true)
+    }
+
+    @Transactional
+    fun tempPassword(emailDTO : EmailDTO) : TempPasswordDTO
+    {
+        if(userRepository.existsByEmail(emailDTO.email))
+        {
+            val rnd = SecureRandom()
+            var tempPassword = ""
+            var lettertype : Int
+
+            for(i : Int in 1..10)
+            {
+                lettertype = rnd.nextInt(2)
+                when (lettertype)
+                {
+                    0 -> tempPassword += (rnd.nextInt(26) + 65).toChar()
+                    1 -> tempPassword += (rnd.nextInt(26) + 97).toChar()
+                    2 -> tempPassword += (rnd.nextInt(10)).toString()
+                }
+            }
+
+            val user = userRepository.findByEmail(emailDTO.email)
+            user.m_password = passwordEncoder.encode(tempPassword)
+            userRepository.save(user)
+
+            var smm = SimpleMailMessage()
+            smm.setFrom(myEmail)
+            smm.setTo(emailDTO.email)
+            smm.setSubject("Temporal password - AnyQuestion")
+            smm.setText("This is your temporal password.\nPlease change your password after login\n" + tempPassword)
+
+            mailSender.send(smm)
+
+            return TempPasswordDTO(true)
+        }
+        else
+        {
+            return TempPasswordDTO(false)
+        }
     }
 }
