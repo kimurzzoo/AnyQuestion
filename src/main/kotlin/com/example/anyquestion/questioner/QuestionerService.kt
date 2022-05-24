@@ -33,8 +33,7 @@ class QuestionerService(private val userRepository : UserRepository,
         var emitter : SseEmitter? = null
         if(roomRepository.existsByRoompassword(meDTO.roompassword))
         {
-            var email = SecurityUtil.getCurrentUserEmail()
-            var userid = userRepository.findByEmail(email).id
+            var userid = SecurityUtil.getCurrentUserId().toLong()
             val room = roomRepository.findByRoompassword(meDTO.roompassword)
             val roomid : Int = room.roomid!!
             val roomnumber : Int = room.roomnumber
@@ -63,8 +62,7 @@ class QuestionerService(private val userRepository : UserRepository,
     {
         var meOutResultDTO = MeOutResultDTO(false)
 
-        var email = SecurityUtil.getCurrentUserEmail()
-        var userid = userRepository.findByEmail(email).id
+        var userid = SecurityUtil.getCurrentUserId().toLong()
 
         questionerRepository.deleteByUserid(userid!!)
         emitterService.unsubscribe(userid!!, false)

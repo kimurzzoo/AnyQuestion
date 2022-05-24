@@ -7,7 +7,7 @@ class SecurityUtil
 {
     companion object
     {
-        fun getCurrentUserEmail() : String
+        fun getCurrentUserId() : String
         {
             val authentication : Authentication = SecurityContextHolder.getContext().getAuthentication()
 
