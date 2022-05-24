@@ -24,6 +24,7 @@ class UserService(private val userRepository : UserRepository,
     {
         try
         {
+            println("로그인 중")
             authenticationManager.authenticate(
                 UsernamePasswordAuthenticationToken(userDTO.email, userDTO.password, null)
             )
@@ -36,7 +37,6 @@ class UserService(private val userRepository : UserRepository,
 
         val accessToken = jwtTokenProvider.createToken(userId.toString())
         val refreshToken = jwtTokenProvider.createRefreshToken()
-
 
         refreshTokenRepository.save(RefreshToken(userId!!, refreshToken))
 

@@ -8,6 +8,6 @@ class UserDetailService(private val userRepository : UserRepository) : UserDetai
 {
     override fun loadUserByUsername(username : String) : UserDetails
     {
-        return userRepository.findById(username.toLong()).get() ?: throw UsernameNotFoundException("존재하지 않는 username 입니다.")
+        return userRepository.findByEmail(username) ?: throw UsernameNotFoundException("존재하지 않는 username 입니다.")
     }
 }
