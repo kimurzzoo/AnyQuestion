@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.mail.javamail.*
 import org.springframework.mail.SimpleMailMessage
 import com.example.anyquestion.secret.Secret
@@ -19,11 +18,9 @@ class UserService(private val userRepository : UserRepository,
                     private val refreshTokenRepository : RefreshTokenRepository,
                     private val blacklistRepository : BlacklistRepository,
                     private val authenticationManager : AuthenticationManager,
-                    private val jwtTokenProvider : JwtTokenProvider)
+                    private val jwtTokenProvider : JwtTokenProvider,
+                    private val passwordEncoder : PasswordEncoder)
 {
-    @Autowired
-    lateinit var passwordEncoder : PasswordEncoder
-
     private var mailSender = JavaMailSenderImpl()
     val myEmail = "kimurzzzoo@gmail.com"
 
@@ -48,18 +45,18 @@ class UserService(private val userRepository : UserRepository,
     @Transactional
     fun login(userDTO : UserDTO) : TokenDTO
     {
+        var userId = userRepository.findByEmail(userDTO.email).id
+
         try
         {
             println("로그인 중")
             authenticationManager.authenticate(
-                UsernamePasswordAuthenticationToken(userDTO.email, userDTO.password, null)
+                UsernamePasswordAuthenticationToken(userId.toString(), userDTO.password, null)
             )
         }
         catch (e: BadCredentialsException) {
             throw BadCredentialsException("로그인 실패")
         }
-
-        var userId = userRepository.findByEmail(userDTO.email).id
 
         val accessToken = jwtTokenProvider.createToken(userId.toString())
         val refreshToken = jwtTokenProvider.createRefreshToken()
@@ -194,6 +191,26 @@ class UserService(private val userRepository : UserRepository,
         else
         {
             return TempPasswordDTO(false)
+        }
+    }
+
+    @Transactional
+    fun changePassword(changePasswordDTO: ChangePasswordDTO) : ChangePasswordResultDTO
+    {
+        val userId = SecurityUtil.getCurrentUserId()
+        var nowuser = userRepository.findById(userId).get()
+
+        if(passwordEncoder.matches(changePasswordDTO.nowPassword, nowuser.m_password)
+            && changePasswordDTO.newPassword.equals(changePasswordDTO.newPassword_confirm)
+            && changePasswordDTO.newPassword.length >= 10) {
+
+            nowuser.m_password = passwordEncoder.encode(changePasswordDTO.newPassword)
+            userRepository.save(nowuser)
+            return ChangePasswordResultDTO(true)
+        }
+        else
+        {
+            return ChangePasswordResultDTO(false)
         }
     }
 }

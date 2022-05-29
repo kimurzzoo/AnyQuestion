@@ -43,4 +43,10 @@ class UserController(private val userService : UserService)
     {
         return ResponseEntity.ok().body(userService.tempPassword(emailDTO))
     }
+
+    @PostMapping("/changepassword")
+    fun changepassword(@RequestBody changePasswordDTO: ChangePasswordDTO) : ResponseEntity<*>
+    {
+        return ResponseEntity.ok().body(userService.changePassword(changePasswordDTO))
+    }
 }

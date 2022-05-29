@@ -16,7 +16,17 @@ class SecurityUtil
                 throw RuntimeException("SecurityContext에 인증정보가 없습니다")
             }
 
-            return authentication.getName().toLong()
+            var userid : Long? = -1
+            try {
+                userid = (authentication.principal as User).id
+            }
+            catch (e : Exception)
+            {
+                throw e
+            }
+            finally {
+                return userid!!
+            }
         }
     }
 }

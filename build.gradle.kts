@@ -31,6 +31,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity5")
 	implementation("javax.mail:mail:1.4.7")
+	implementation("com.paypal.sdk:rest-api-sdk:1.14.0")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
