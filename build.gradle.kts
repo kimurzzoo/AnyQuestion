@@ -29,6 +29,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity5")
+	implementation("com.paypal.sdk:rest-api-sdk:1.14.0")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.2")
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.2")
