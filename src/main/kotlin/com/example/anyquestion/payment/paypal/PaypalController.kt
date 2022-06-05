@@ -1,12 +1,10 @@
 package com.example.anyquestion.payment.paypal
 
 import com.example.anyquestion.account.SecurityUtil.Companion.getCurrentUserId
-import com.example.anyquestion.payment.DurationRepository
+import com.example.anyquestion.payment.*
 import com.example.anyquestion.payment.Merchandise.Companion.descriptionList
 import com.example.anyquestion.payment.Merchandise.Companion.durationList
 import com.example.anyquestion.payment.Merchandise.Companion.merchandiseList
-import com.example.anyquestion.payment.PaymentEntity
-import com.example.anyquestion.payment.PaymentRepository
 import com.paypal.api.payments.Amount
 import com.paypal.api.payments.Links
 import com.paypal.api.payments.RefundRequest
@@ -15,6 +13,7 @@ import com.paypal.base.rest.PayPalRESTException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import java.sql.Timestamp
 import java.util.*
@@ -24,7 +23,9 @@ import java.util.*
 class PaypalController(private val paypalService: PaypalService,
                        private val paypalConfig: PaypalConfig,
                        private val paymentRepository: PaymentRepository,
-                       private val durationRepository: DurationRepository) {
+                       private val durationRepository: DurationRepository,
+                       private val refundRepository: RefundRepository)
+{
 
     @Value("\${server.address}")
     val addr : String = ""
@@ -70,6 +71,7 @@ class PaypalController(private val paypalService: PaypalService,
         return "canceled"
     }
 
+    @Transactional
     @ResponseBody
     @GetMapping("/success")
     fun successPay(@RequestParam("paymentId") paymentId : String, @RequestParam("PayerID") payerId : String) : ResponseEntity<*>
@@ -111,11 +113,15 @@ class PaypalController(private val paypalService: PaypalService,
         return ResponseEntity.ok().body(PaypalSuccessDTO(false))
     }
 
+    @Transactional
     @ResponseBody
     @GetMapping("/refund")
     fun refund(sale_id : String) : PaypalRefundDTO
     {
         val userid = getCurrentUserId().toLong()
+        if(!paymentRepository.existsByMethodAndPaymentid("paypal", sale_id))
+            return PaypalRefundDTO(false)
+
         val paymentIns = paymentRepository.findByMethodAndPaymentid("paypal", sale_id)
 
         if(!userid.equals(paymentIns.userid))
@@ -125,6 +131,9 @@ class PaypalController(private val paypalService: PaypalService,
 
         if(!durationIns.isRefundable(paymentIns.merid))
             return PaypalRefundDTO(false)
+        else
+            durationIns.subtract(paymentIns.merid)
+
         try
         {
             var amount = Amount()
@@ -139,6 +148,10 @@ class PaypalController(private val paypalService: PaypalService,
 
             var returnRefund = sale.refund(paypalConfig.apiContext(), refund)
             println(returnRefund)
+
+            refundRepository.save(RefundEntity(userid, "paypal", sale_id, Timestamp(System.currentTimeMillis())))
+            durationRepository.save(durationIns)
+
             return PaypalRefundDTO(true)
         }
         catch (e : PayPalRESTException)

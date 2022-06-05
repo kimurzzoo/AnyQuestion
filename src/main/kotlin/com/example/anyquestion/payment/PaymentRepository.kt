@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository
 @Repository
 interface PaymentRepository : JpaRepository<PaymentEntity, Long> {
     fun findByMethodAndPaymentid(method : String, paymentid : String) : PaymentEntity
+    fun existsByMethodAndPaymentid(method : String, paymentid : String) : Boolean
 }
 
 @Repository

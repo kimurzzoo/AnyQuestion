@@ -69,6 +69,14 @@ class DurationEntity(userid : Long, expireddate : Timestamp){
         cal.add(durationList[merId][0], durationList[merId][0])
         expireddate.time = cal.time.time
     }
+
+    fun subtract(merId : Int)
+    {
+        var cal = Calendar.getInstance()
+        cal.time = expireddate
+        cal.add(durationList[merId][0], (-1) * durationList[merId][0])
+        expireddate.time = cal.time.time
+    }
 }
 
 @Table(name="refund")
