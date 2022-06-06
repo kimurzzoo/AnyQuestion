@@ -116,21 +116,22 @@ class PaypalController(private val paypalService: PaypalService,
     @Transactional
     @ResponseBody
     @GetMapping("/refund")
-    fun refund(sale_id : String) : PaypalRefundDTO
+    fun refund(sale_id : String) : ResponseEntity<*>
     {
         val userid = getCurrentUserId().toLong()
+
         if(!paymentRepository.existsByMethodAndPaymentid("paypal", sale_id))
-            return PaypalRefundDTO(false)
+            return ResponseEntity.ok().body(PaypalRefundDTO(false))
 
         val paymentIns = paymentRepository.findByMethodAndPaymentid("paypal", sale_id)
 
         if(!userid.equals(paymentIns.userid))
-            return PaypalRefundDTO(false)
+            return ResponseEntity.ok().body(PaypalRefundDTO(false))
 
         val durationIns = durationRepository.findById(paymentIns.userid).get()
 
         if(!durationIns.isRefundable(paymentIns.merid))
-            return PaypalRefundDTO(false)
+            return ResponseEntity.ok().body(PaypalRefundDTO(false))
         else
             durationIns.subtract(paymentIns.merid)
 
@@ -152,13 +153,13 @@ class PaypalController(private val paypalService: PaypalService,
             refundRepository.save(RefundEntity(userid, "paypal", sale_id, Timestamp(System.currentTimeMillis())))
             durationRepository.save(durationIns)
 
-            return PaypalRefundDTO(true)
+            return ResponseEntity.ok().body(PaypalRefundDTO(true))
         }
         catch (e : PayPalRESTException)
         {
             println(e.message)
         }
 
-        return PaypalRefundDTO(false)
+        return ResponseEntity.ok().body(PaypalRefundDTO(false))
     }
 }

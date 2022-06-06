@@ -47,9 +47,7 @@ class DurationEntity(userid : Long, expireddate : Timestamp){
 
         var nowcal = Calendar.getInstance()
         nowcal.time = Date()
-        if(cal.after(nowcal))
-           return true
-        return false
+        return cal.after(nowcal)
     }
 
     fun isBefore(nowdate : Calendar) : Boolean
@@ -57,9 +55,7 @@ class DurationEntity(userid : Long, expireddate : Timestamp){
         var cal = Calendar.getInstance()
         cal.time=expireddate
 
-        if(cal.before(nowdate))
-            return true
-        return false
+        return cal.before(nowdate)
     }
 
     fun add(merId : Int)
