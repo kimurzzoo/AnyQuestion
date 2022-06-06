@@ -31,6 +31,8 @@ class SecurityConfig(private val jwtTokenProvider: JwtTokenProvider,
             .and()
             .authorizeRequests() // 요청에 대한 사용권한 체크
             .antMatchers("/auth/login", "/auth/register").permitAll() // 로그인, 회원가입은 누구나 접근 가능
+            .antMatchers("/payment/paypal/success", "/payment/paypal/cancel").permitAll()
+            .antMatchers("/payment/toss/success", "/payment/toss/fail").permitAll()
             .anyRequest().authenticated()
             .and()
             .addFilterBefore(JwtAuthenticationFilter(jwtTokenProvider, blacklistRepository), UsernamePasswordAuthenticationFilter::class.java)
