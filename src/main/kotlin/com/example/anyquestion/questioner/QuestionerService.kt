@@ -2,6 +2,7 @@ package com.example.anyquestion.questioner
 
 import com.example.anyquestion.speecher.*
 import com.example.anyquestion.account.*
+import com.example.anyquestion.account.SecurityUtil.Companion.getCurrentUserId
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
@@ -33,7 +34,7 @@ class QuestionerService(private val userRepository : UserRepository,
         var emitter : SseEmitter? = null
         if(roomRepository.existsByRoompassword(meDTO.roompassword))
         {
-            var userid = SecurityUtil.getCurrentUserId().toLong()
+            var userid = getCurrentUserId(userRepository)
             val room = roomRepository.findByRoompassword(meDTO.roompassword)
             val roomid : Int = room.roomid!!
             val roomnumber : Int = room.roomnumber
@@ -62,7 +63,7 @@ class QuestionerService(private val userRepository : UserRepository,
     {
         var meOutResultDTO = MeOutResultDTO(false)
 
-        var userid = SecurityUtil.getCurrentUserId().toLong()
+        var userid = getCurrentUserId(userRepository)
 
         questionerRepository.deleteByUserid(userid!!)
         emitterService.unsubscribe(userid!!, false)

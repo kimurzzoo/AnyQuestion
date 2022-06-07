@@ -23,7 +23,7 @@ class SpeecherService(private val speecherRepository : SpeecherRepository,
     @Transactional
     fun groupCreate() : SseEmitter
     {
-        var userId = SecurityUtil.getCurrentUserId().toLong()
+        var userId = SecurityUtil.getCurrentUserId(userRepository)
         val speecher = Speecher(userId!!)
         speecherRepository.save(speecher)
 
@@ -39,7 +39,7 @@ class SpeecherService(private val speecherRepository : SpeecherRepository,
     @Transactional
     fun groupDelete() : GroupDeleteResult
     {
-        var userId = SecurityUtil.getCurrentUserId().toLong()
+        var userId = SecurityUtil.getCurrentUserId(userRepository)
         var nowspeecher : Speecher? = null
         if(userId != null)
         {
@@ -72,7 +72,7 @@ class SpeecherService(private val speecherRepository : SpeecherRepository,
     @Transactional
     fun groupFind() : SpeecherDTO
     {
-        var userId = SecurityUtil.getCurrentUserId().toLong()
+        var userId = SecurityUtil.getCurrentUserId(userRepository)
         val speecher = speecherRepository.findByUserid(userId!!)
         return SpeecherDTO(roomRepository.findById(speecher.roomid!!).get().roompassword)
     }
@@ -80,7 +80,7 @@ class SpeecherService(private val speecherRepository : SpeecherRepository,
     @Transactional
     fun next() 
     {
-        var userId = SecurityUtil.getCurrentUserId().toLong()
+        var userId = SecurityUtil.getCurrentUserId(userRepository)
         val speecher = speecherRepository.findByUserid(userId!!)
         val currentUserList = questionerRepository.nextQuestion(speecher.roomid!!)
         if(currentUserList.size == 0)

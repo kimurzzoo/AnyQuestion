@@ -93,7 +93,7 @@ class UserService(private val userRepository : UserRepository,
             }
         }
 
-        var userId = SecurityUtil.getCurrentUserId().toLong()
+        var userId = SecurityUtil.getCurrentUserId(userRepository).toLong()
 
         val refreshToken = refreshTokenRepository.findById(userId!!)?: throw RuntimeException("logout user")
 
@@ -113,7 +113,7 @@ class UserService(private val userRepository : UserRepository,
     @Transactional
     fun logout(token : String) : LogoutDTO
     {
-        var userId = SecurityUtil.getCurrentUserId().toLong()
+        var userId = SecurityUtil.getCurrentUserId(userRepository)
 
         blacklistRepository.save(ExpiredToken(token, userId!!))
         refreshTokenRepository.deleteById(userId!!)
@@ -124,7 +124,7 @@ class UserService(private val userRepository : UserRepository,
     @Transactional
     fun withdrawal() : WithdrawalDTO
     {
-        var userid = SecurityUtil.getCurrentUserId().toLong()
+        var userid = SecurityUtil.getCurrentUserId(userRepository)
 
         userRepository.deleteById(userid)
 

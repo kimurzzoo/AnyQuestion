@@ -10,4 +10,9 @@ class UserDetailService(private val userRepository : UserRepository) : UserDetai
     {
         return userRepository.findByEmail(username) ?: throw UsernameNotFoundException("존재하지 않는 username 입니다.")
     }
+
+    fun loadUserByUserid(userid : String) : UserDetails
+    {
+        return userRepository.findById(userid.toLong()).get()
+    }
 }

@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest
 import com.example.anyquestion.secret.Secret
 
 @Component
-class JwtTokenProvider(private val userDetailsService: UserDetailsService)
+class JwtTokenProvider(private val userDetailsService: UserDetailService)
 {
     private var secretKey = Secret.secretKey
 
@@ -52,7 +52,7 @@ class JwtTokenProvider(private val userDetailsService: UserDetailsService)
 
     // JWT 토큰에서 인증 정보 조회
     fun getAuthentication(token: String): Authentication {
-        val userDetails = userDetailsService.loadUserByUsername(getUserPk(token))
+        val userDetails = userDetailsService.loadUserByUserid(getUserPk(token))
         return UsernamePasswordAuthenticationToken(userDetails, "", userDetails.authorities)
     }
 

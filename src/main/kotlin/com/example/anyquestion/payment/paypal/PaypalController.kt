@@ -1,6 +1,7 @@
 package com.example.anyquestion.payment.paypal
 
 import com.example.anyquestion.account.SecurityUtil.Companion.getCurrentUserId
+import com.example.anyquestion.account.UserRepository
 import com.example.anyquestion.payment.*
 import com.example.anyquestion.payment.Merchandise.Companion.descriptionList
 import com.example.anyquestion.payment.Merchandise.Companion.durationList
@@ -24,7 +25,8 @@ class PaypalController(private val paypalService: PaypalService,
                        private val paypalConfig: PaypalConfig,
                        private val paymentRepository: PaymentRepository,
                        private val durationRepository: DurationRepository,
-                       private val refundRepository: RefundRepository)
+                       private val refundRepository: RefundRepository,
+                       private val userRepository: UserRepository)
 {
 
     @Value("\${server.address}")
@@ -80,7 +82,7 @@ class PaypalController(private val paypalService: PaypalService,
             var payment = paypalService.executePayment(paymentId, payerId)
             if(payment.state.equals("approved"))
             {
-                val userid = getCurrentUserId().toLong()
+                val userid = getCurrentUserId(userRepository)
                 val merId = payment.transactions.get(0).description.toInt()
                 paymentRepository.save(PaymentEntity(userid,
                     "paypal",
@@ -118,7 +120,7 @@ class PaypalController(private val paypalService: PaypalService,
     @GetMapping("/refund")
     fun refund(sale_id : String) : PaypalRefundDTO
     {
-        val userid = getCurrentUserId().toLong()
+        val userid = getCurrentUserId(userRepository)
         if(!paymentRepository.existsByMethodAndPaymentid("paypal", sale_id))
             return PaypalRefundDTO(false)
 
