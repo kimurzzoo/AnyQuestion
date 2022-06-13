@@ -39,6 +39,21 @@ class DurationEntity(userid : Long, expireddate : Timestamp){
     @Column(name = "expireddate", nullable = false)
     var expireddate : Timestamp = expireddate
 
+    fun isBefore(nowdate : Calendar) : Boolean
+    {
+        var cal = Calendar.getInstance()
+        cal.time=expireddate
+
+        return cal.before(nowdate)
+    }
+
+    fun isExpired() : Boolean
+    {
+        var cal = Calendar.getInstance()
+        cal.time = Timestamp(System.currentTimeMillis())
+        return isBefore(cal)
+    }
+
     fun isRefundable(merid : Int) : Boolean
     {
         var cal = Calendar.getInstance()
@@ -46,18 +61,8 @@ class DurationEntity(userid : Long, expireddate : Timestamp){
         cal.add(durationList[merid][0], (-1) * durationList[merid][1])
 
         var nowcal = Calendar.getInstance()
-        nowcal.time = Date()
+        nowcal.time = Timestamp(System.currentTimeMillis())
         if(cal.after(nowcal))
-           return true
-        return false
-    }
-
-    fun isBefore(nowdate : Calendar) : Boolean
-    {
-        var cal = Calendar.getInstance()
-        cal.time=expireddate
-
-        if(cal.before(nowdate))
             return true
         return false
     }
@@ -77,6 +82,8 @@ class DurationEntity(userid : Long, expireddate : Timestamp){
         cal.add(durationList[merId][0], (-1) * durationList[merId][0])
         expireddate.time = cal.time.time
     }
+
+
 }
 
 @Table(name="refund")

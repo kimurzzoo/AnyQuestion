@@ -1,6 +1,7 @@
 package com.example.anyquestion.speecher
 
 import com.example.anyquestion.account.*
+import com.example.anyquestion.payment.DurationRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
@@ -14,16 +15,21 @@ class SpeecherService(private val speecherRepository : SpeecherRepository,
                     private val userRepository : UserRepository,
                     private val roomRepository : RoomRepository,
                     private val emitterService : EmitterService,
-                    private val emitterRepository : EmitterRepository)
+                    private val emitterRepository : EmitterRepository,
+                      private val durationRepository: DurationRepository)
 {
     private val randomString : Array<String> = arrayOf("charlie", "william", "michael", "jonathan", "elizabeth", "beatrice", "catherine", "jennifer")
     private val randomInt : Int = randomString.size
     private val random = Random()
 
     @Transactional
-    fun groupCreate() : SseEmitter
+    fun groupCreate() : SseEmitter?
     {
         var userId = SecurityUtil.getCurrentUserId(userRepository)
+        val durationIns = durationRepository.findById(userId).get()
+        if(durationIns.isExpired())
+            return null
+
         val speecher = Speecher(userId!!)
         speecherRepository.save(speecher)
 
@@ -81,6 +87,10 @@ class SpeecherService(private val speecherRepository : SpeecherRepository,
     fun next() 
     {
         var userId = SecurityUtil.getCurrentUserId(userRepository)
+        val durationIns = durationRepository.findById(userId).get()
+        if(durationIns.isExpired())
+            return
+
         val speecher = speecherRepository.findByUserid(userId!!)
         val currentUserList = questionerRepository.nextQuestion(speecher.roomid!!)
         if(currentUserList.size == 0)

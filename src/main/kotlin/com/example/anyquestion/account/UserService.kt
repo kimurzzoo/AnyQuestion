@@ -1,5 +1,7 @@
 package com.example.anyquestion.account
 
+import com.example.anyquestion.payment.DurationEntity
+import com.example.anyquestion.payment.DurationRepository
 import org.springframework.stereotype.Service
 import org.springframework.security.authentication.*
 import org.springframework.transaction.annotation.Transactional
@@ -8,13 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.data.repository.findByIdOrNull
 import com.example.anyquestion.secret.Secret
+import java.sql.Timestamp
 
 @Service
 class UserService(private val userRepository : UserRepository,
                     private val refreshTokenRepository : RefreshTokenRepository,
                     private val blacklistRepository : BlacklistRepository,
                     private val authenticationManager : AuthenticationManager,
-                    private val jwtTokenProvider : JwtTokenProvider)
+                    private val jwtTokenProvider : JwtTokenProvider,
+                  private val durationRepository: DurationRepository)
 {
     @Autowired
     lateinit var passwordEncoder : PasswordEncoder
@@ -69,6 +73,10 @@ class UserService(private val userRepository : UserRepository,
 
         val user = User(accountDTO.name, accountDTO.email, passwordEncoder.encode(accountDTO.password))
         userRepository.save(user)
+
+        val userid = userRepository.findByEmail(accountDTO.email).id
+        val duration = DurationEntity(userid!!, Timestamp(1))
+        durationRepository.save(duration)
 
         registerresult.ok = true
 
