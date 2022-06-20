@@ -9,7 +9,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 class SpeecherController(private val speecherService : SpeecherService)
 {
     @GetMapping(value = ["/create"], produces = ["text/event-stream"])
-    fun groupCreate() : SseEmitter
+    fun groupCreate() : SseEmitter?
     {
         return speecherService.groupCreate()
     }

@@ -11,12 +11,24 @@ class SecurityUtil
         {
             val authentication : Authentication = SecurityContextHolder.getContext().getAuthentication()
 
-            if(authentication == null || authentication.getName() == null)
+            if(authentication.getName() == null)
             {
                 throw RuntimeException("SecurityContext에 인증정보가 없습니다")
             }
 
             return userRepository.findByEmail(authentication.name).id!!
+        }
+
+        fun getCurrentUserEmail() : String
+        {
+            val authentication : Authentication = SecurityContextHolder.getContext().getAuthentication()
+
+            if(authentication.getName() == null)
+            {
+                throw RuntimeException("SecurityContext에 인증정보가 없습니다")
+            }
+
+            return authentication.name
         }
     }
 }

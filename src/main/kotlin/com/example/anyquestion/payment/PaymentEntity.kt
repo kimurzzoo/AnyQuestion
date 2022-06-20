@@ -112,6 +112,7 @@ class Merchandise{
         val methodList = listOf("paypal", "toss")
         val merchandiseList = listOf(1.00, 10.00)
         var merchandiseWonList : HashMap<Int, Int> = hashMapOf(1200 to 0, 12000 to 1)
+        val merchandiseWonarr = arrayOf(1200, 12000)
         val durationList = listOf(listOf(Calendar.MONTH, 1), listOf(Calendar.YEAR, 1))
         val descriptionList = listOf("0", "1")
 
